@@ -22,11 +22,17 @@ class BaseFit(object):
         self._pcov = pcov
         self._error = np.sqrt(np.diag(pcov))
 
-    def plot(self, fmt1='rx', fmt2='k--', opt1={}, opt2={}):
+    def plot(self, opt1={},
+                   fmt2='k--',
+                   opt2={}):
+        ax = plt.gca()
         t,y=self.data
-        plt.plot(t, y, fmt1, **opt1)
-        plt.plot(t, self._fitfunc(t,*self._popt), fmt2, **opt2)
-        plt.show()
+        sca_opt={'marker':'o','color':'','edgecolors':'r'}
+        sca_opt.update(opt1)
+        ax.scatter(t, y, **sca_opt)
+        plot_opt={}
+        plot_opt.update(opt2)
+        ax.plot(t, self._fitfunc(t,*self._popt), fmt2, **plot_opt)
 
     @property
     def error(self):
@@ -84,6 +90,13 @@ class Linear_Fit(BaseFit):
         A,B=self._popt
         return B
 
+
+class Sin_Fit(BaseFit):
+    def _fitfunc(self, t, A, B, w, phi):
+        y=A*np.sin(w*t+phi)+B
+        return y
+
+
 class RBM_Fit(BaseFit):
     '''Randomized Benchmarking Fit'''
 
@@ -111,7 +124,7 @@ class RBM_Fit(BaseFit):
         '''Fidelity '''
         d = self.d
         A,B,p=self._popt
-        F=1-(1-p)*(1-d)/d
+        F=1-(1-p)*(d-1)/d
         return F
 
     @property
@@ -214,9 +227,9 @@ class Spinecho_Fit(BaseFit):
     @property
     def T2E(self):
         A,B,T2E = self._popt
-        return T_2E
+        return T2E
 
     @property
-    def T_2E(self):
-        self._Fitcurve()
-        return self._T_2E
+    def T2E_error(self):
+        A_e,B_e,T2E_e=self._error
+        return T2E_e

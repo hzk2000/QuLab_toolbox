@@ -1,1 +1,1 @@
-from .clifford import *
+from ._cliffordGroup import cliffordGroup
